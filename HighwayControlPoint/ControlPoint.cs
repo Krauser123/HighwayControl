@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
+using Utils;
 
 namespace HighwayControlPoint
 {
@@ -8,17 +9,17 @@ namespace HighwayControlPoint
         private IDatabase Database;
         private readonly ConnectionMultiplexer Connection;
         private readonly List<HighwaySensor> SensorsInHighway;
-        private readonly Dictionary<int, string> SensorsToInitialize;
-        private readonly ILogger<HighwaySensor> logger; 
+        private readonly List<SensorCreateInfo> SensorsToInitialize;
+        private readonly ILogger<HighwaySensor> logger;
 
-        public ControlPoint(Dictionary<int, string> sensorsInControlPoint)
+        public ControlPoint(List<SensorCreateInfo> sensorsInControlPoint, string redisConnectionString)
         {
             var logFactory = new LoggerFactory();
             logger = logFactory.CreateLogger<HighwaySensor>();
 
             SensorsToInitialize = sensorsInControlPoint;
             SensorsInHighway = new List<HighwaySensor>();
-            Connection = GetConnection("localhost:6379");
+            Connection = GetConnection(redisConnectionString);
         }
 
         public void Start()
@@ -27,10 +28,10 @@ namespace HighwayControlPoint
 
             foreach (var sensorToInit in SensorsToInitialize)
             {
-                var sensor = new HighwaySensor(sensorToInit.Key, sensorToInit.Value, Database, logger);
+                var sensor = new HighwaySensor(sensorToInit.Id, sensorToInit.Name, sensorToInit.Km, Database, logger);
                 SensorsInHighway.Add(sensor);
 
-                Console.WriteLine("Starting sensor -> Id {0} - Name {1} ", sensor.Id, sensor.Name);
+                logger.LogInformation($"Starting sensor -> Id: {sensor.Id} - Name: {sensor.Name}");
                 sensor.StartSensor();
             }
         }
@@ -49,7 +50,7 @@ namespace HighwayControlPoint
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("$Cannot connect to Redis Database Server. Exception {0}", ex);
+                throw new ApplicationException($"Cannot connect to Redis Database Server. Exception: {ex}");
             }
         }
     }

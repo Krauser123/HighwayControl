@@ -7,9 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighwayControlPoint", "High
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "HighwayCentralControl_Front", "HighwayCentralControl_Front\HighwayCentralControl_Front.esproj", "{FA0C1090-AF77-4399-BDF5-ECC19E0E8B2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HighwayCentralControl_API", "HighwayCentralControl_API\HighwayCentralControl_API.csproj", "{6E03D5AB-79F1-4064-8DC6-8F3CB205677D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HighwayCentralControl_API", "HighwayCentralControl_API\HighwayCentralControl_API.csproj", "{6E03D5AB-79F1-4064-8DC6-8F3CB205677D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{EADE6691-20C9-41EE-9F3C-F87A23DA7F0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils", "Utils\Utils.csproj", "{EADE6691-20C9-41EE-9F3C-F87A23DA7F0B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FD05EEFF-A347-4BAB-B894-51F8592EA206}"
+	ProjectSection(SolutionItems) = preProject
+		CreateDockerContainers.ps1 = CreateDockerContainers.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

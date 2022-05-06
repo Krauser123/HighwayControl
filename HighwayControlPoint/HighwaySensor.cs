@@ -9,18 +9,18 @@ namespace HighwayControlPoint
     {
         public int Id { get; set; }
         public string Name { get; set; }
-
+        public int Km { get; set; }
         private readonly Random Random;
-
         private readonly IDatabase DbCache;
-
         private readonly ILogger logger;
+        private int SensorLive = 40000;
 
 
-        public HighwaySensor(int id, string name, IDatabase distributedCache, ILogger logger)
+        public HighwaySensor(int id, string name, int km, IDatabase distributedCache, ILogger logger)
         {
             this.Id = id;
             this.Name = name;
+            this.Km = km;
             this.Random = new Random();
             this.DbCache = distributedCache;
             this.logger = logger;
@@ -31,7 +31,7 @@ namespace HighwayControlPoint
             Thread t = new Thread(new ThreadStart(ThreadProc));
             t.Start();
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < SensorLive; i++)
             {
                 int carSpeed = Random.Next(10, 140);
                 var carPlate = GeneratePlates();
@@ -41,7 +41,12 @@ namespace HighwayControlPoint
 
                 //Send data to redis cache
                 string dataToSave = JsonConvert.SerializeObject(sensorData);
-                DbCache.StringSetAsync(Id.ToString(), dataToSave);
+
+                //Build key for redis
+                string key = $"{Id}:{Name}:{sensorData.CatchDate.ToShortDateString()}:{sensorData.CatchDate.GetHashCode()}";
+
+                DbCache.StringSetAsync(key, dataToSave);
+                logger.LogTrace($"Data sended to redis: SensorInfo (Id: {Id} Name: {Name} Km: {Km}) SensorData (Plate: {sensorData.CarPlate} SpeedcarSpeed: {sensorData.CarSpeed}) ");
 
                 Thread.Sleep(0);
             }
