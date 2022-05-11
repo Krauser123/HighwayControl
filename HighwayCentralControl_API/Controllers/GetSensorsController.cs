@@ -7,14 +7,14 @@ namespace HighwayCentralControl_API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class GetSensorsDataController : ControllerBase
+    public class GetSensorsController : ControllerBase
     {
         private readonly IDistributedCache _redis;
         private readonly IConfiguration _configuration;
         private readonly ILogger<GetSensorsDataController> _logger;
         private RedisUtils redisUtils;
 
-        public GetSensorsDataController(ILogger<GetSensorsDataController> logger, IDistributedCache distributedCache, IConfiguration configuration)
+        public GetSensorsController(ILogger<GetSensorsDataController> logger, IDistributedCache distributedCache, IConfiguration configuration)
         {
             _logger = logger;
             _redis = distributedCache;
@@ -23,18 +23,18 @@ namespace HighwayCentralControl_API.Controllers
         }
 
         [HttpGet]
-        public async Task<string> Get([FromQuery] int sensorId, [FromQuery] DateTime date)
+        public async Task<string> Get()
         {
             string dataToReturn = null;
 
             try
             {
-                var keys = redisUtils.GetKeys(sensorId.ToString() + ":" + date.ToShortDateString(), _configuration.GetConnectionString("DefaultConnection"));
+                var keys = redisUtils.GetKeys(Constants.SensorsKey, _configuration.GetConnectionString("DefaultConnection"));
 
                 foreach (var key in keys)
                 {
-                    var value = await _redis.GetStringAsync(key);
-                    var valueN = JsonConvert.DeserializeObject<object>(value);
+                    var value = await _redis.GetStringAsync("Sensors:1");
+                    //var valueN = JsonConvert.DeserializeObject<object>(value);
                 }
             }
             catch (Exception ex)
@@ -44,6 +44,7 @@ namespace HighwayCentralControl_API.Controllers
 
             return dataToReturn;
         }
-       
+
+
     }
 }

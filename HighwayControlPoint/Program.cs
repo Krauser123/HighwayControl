@@ -16,8 +16,6 @@ namespace HighwayControlPoint
             var logFactory = new LoggerFactory();
             var logger = logFactory.CreateLogger<Program>();
 
-            logger.LogError("AAAAA");
-
             using IHost host = Host.CreateDefaultBuilder(args).ConfigureAppConfiguration((hostingContext, configuration) =>
             {
                 configuration.Sources.Clear();

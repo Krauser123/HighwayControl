@@ -12,8 +12,8 @@ namespace HighwayControlPoint
         public int Km { get; set; }
         private readonly Random Random;
         private readonly IDatabase DbCache;
-        private readonly ILogger logger;
-        private int SensorLive = 40000;
+        private readonly ILogger Logger;
+        private readonly int SensorLive = 40000;
 
 
         public HighwaySensor(int id, string name, int km, IDatabase distributedCache, ILogger logger)
@@ -23,7 +23,8 @@ namespace HighwayControlPoint
             this.Km = km;
             this.Random = new Random();
             this.DbCache = distributedCache;
-            this.logger = logger;
+            this.Logger = logger;
+            InsertSensorInRedis();
         }
 
         public void StartSensor()
@@ -43,10 +44,10 @@ namespace HighwayControlPoint
                 string dataToSave = JsonConvert.SerializeObject(sensorData);
 
                 //Build key for redis
-                string key = $"{Id}:{Name}:{sensorData.CatchDate.ToShortDateString()}:{sensorData.CatchDate.GetHashCode()}";
+                string key = $"{Id}:{sensorData.CatchDate.ToShortDateString()}:{sensorData.CatchDate.GetHashCode()}";
 
                 DbCache.StringSetAsync(key, dataToSave);
-                logger.LogTrace($"Data sended to redis: SensorInfo (Id: {Id} Name: {Name} Km: {Km}) SensorData (Plate: {sensorData.CarPlate} SpeedcarSpeed: {sensorData.CarSpeed}) ");
+                Logger.LogTrace($"Data sended to redis: SensorInfo (Id: {Id} Name: {Name} Km: {Km}) SensorData (Plate: {sensorData.CarPlate} SpeedcarSpeed: {sensorData.CarSpeed}) ");
 
                 Thread.Sleep(0);
             }
@@ -57,11 +58,21 @@ namespace HighwayControlPoint
             //Main thread: ThreadProc.Join has returned
         }
 
+        private void InsertSensorInRedis()
+        {
+            var exist = DbCache.StringGet($"Sensors:{this.Id}");
+
+            if (!exist.HasValue || exist != this.Name)
+            {
+                DbCache.StringSetAsync($"Sensors:{this.Id}", $"{this.Name}");
+            }
+        }
+
         private void ThreadProc()
         {
             for (int i = 0; i < 10; i++)
             {
-                logger.LogInformation("ThreadProc: {0}", i);
+                Logger.LogInformation("ThreadProc: {0}", i);
                 Thread.Sleep(0);
             }
         }

@@ -5,5 +5,6 @@ namespace Utils
     {
         public const string SensorsToInitialize = "SensorsToInitialize";
         public const string RedisConnection = "RedisConnection";
+        public const string SensorsKey = "Sensors";
     }
 }

@@ -1,3 +1,5 @@
+var AllowSpecificOrigins = "allowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,11 +11,25 @@ builder.Services.AddEndpointsApiExplorer();
 // Register the Swagger generator, defining 1 or more Swagger documents
 builder.Services.AddSwaggerGen();
 
+// Add services to the container.
+ConfigurationManager configuration = builder.Configuration;
+
 // Register Redis
 builder.Services.AddDistributedRedisCache(option =>
 {
-    option.Configuration = "127.0.0.1:6379";
+    option.Configuration = configuration.GetConnectionString("DefaultConnection");
     option.InstanceName = "master";
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("*");
+                          policy.WithMethods("*");
+                          policy.WithHeaders("*");
+                      });
 });
 
 var app = builder.Build();
@@ -28,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(AllowSpecificOrigins);
 
 app.UseAuthorization();
 
