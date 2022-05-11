@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 using Utils;
 
 namespace HighwayCentralControl_API.Controllers
@@ -9,32 +8,31 @@ namespace HighwayCentralControl_API.Controllers
     [Route("[controller]")]
     public class GetSensorsController : ControllerBase
     {
-        private readonly IDistributedCache _redis;
         private readonly IConfiguration _configuration;
         private readonly ILogger<GetSensorsDataController> _logger;
-        private RedisUtils redisUtils;
+        private RedisUtils _redisUtils;
 
-        public GetSensorsController(ILogger<GetSensorsDataController> logger, IDistributedCache distributedCache, IConfiguration configuration)
+        public GetSensorsController(ILogger<GetSensorsDataController> logger, IConfiguration configuration)
         {
             _logger = logger;
-            _redis = distributedCache;
             _configuration = configuration;
-            redisUtils = new RedisUtils();
+            _redisUtils = new RedisUtils(_configuration.GetConnectionString("DefaultConnection"));
         }
 
         [HttpGet]
-        public async Task<string> Get()
+        public async Task<List<SensorCreateInfo>> Get()
         {
-            string dataToReturn = null;
+            List<SensorCreateInfo> sensors = new List<SensorCreateInfo>();
 
             try
             {
-                var keys = redisUtils.GetKeys(Constants.SensorsKey, _configuration.GetConnectionString("DefaultConnection"));
+                var keys = _redisUtils.GetKeysStartWith(Constants.SensorsKey);
 
                 foreach (var key in keys)
                 {
-                    var value = await _redis.GetStringAsync("Sensors:1");
-                    //var valueN = JsonConvert.DeserializeObject<object>(value);
+                    var sensorId = Convert.ToInt16(key.ToString().Split(":")[1]);
+                    var value = await _redisUtils.GetStringAsync(key);
+                    sensors.Add(new SensorCreateInfo { Id = sensorId, Name = value });
                 }
             }
             catch (Exception ex)
@@ -42,9 +40,7 @@ namespace HighwayCentralControl_API.Controllers
                 _logger.LogError("Error gettings Sensor Data ->" + ex.ToString());
             }
 
-            return dataToReturn;
+            return sensors;
         }
-
-
     }
 }

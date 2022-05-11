@@ -1,24 +1,34 @@
 ﻿using StackExchange.Redis;
+using System.Net;
 
 namespace Utils
 {
     public class RedisUtils
     {
-        public RedisKey[] GetKeys(string name, string connStrg)
+        private ConnectionMultiplexer Connection;
+        private IDatabase Database;
+        private EndPoint EndPoint;
+
+        public RedisUtils(string connStrg)
         {
             ConfigurationOptions options = ConfigurationOptions.Parse(connStrg);
-            ConnectionMultiplexer connection = ConnectionMultiplexer.Connect(options);
-            var endPoint = connection.GetEndPoints().First();
-            var pattern = $"{name}:*";
-            RedisKey[] keys = connection.GetServer(endPoint).Keys(pattern: pattern).ToArray();
 
-            /*var db= connection.GetDatabase();
-            foreach (var key in keys)
-            {
-                var as2=db.StringGet(key);
-            }*/
+            Connection = ConnectionMultiplexer.Connect(options);
+            EndPoint = Connection.GetEndPoints().First();
+            Database = Connection.GetDatabase();
+        }
 
+        public RedisKey[] GetKeysStartWith(string startsWith)
+        {
+            var pattern = $"{startsWith}:*";
+            RedisKey[] keys = Connection.GetServer(EndPoint).Keys(pattern: pattern).ToArray();
             return keys;
+        }
+
+        public async Task<string> GetStringAsync(string key)
+        {
+            string keyValue = await Database.StringGetAsync(key);
+            return keyValue;
         }
     }
 }

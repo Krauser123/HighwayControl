@@ -14,13 +14,6 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 ConfigurationManager configuration = builder.Configuration;
 
-// Register Redis
-builder.Services.AddDistributedRedisCache(option =>
-{
-    option.Configuration = configuration.GetConnectionString("DefaultConnection");
-    option.InstanceName = "master";
-});
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AllowSpecificOrigins,
