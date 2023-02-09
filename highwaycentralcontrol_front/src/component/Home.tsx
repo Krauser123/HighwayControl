@@ -33,7 +33,7 @@ export class Home extends Component<HomeProps, HomeState> {
 
     async getSensorData() {
         let formated = moment(this.state.dateValue).format('DD/MM/YYYY');
-        const response = await fetch("https://localhost:7269/" + "GetSensorsData?sensorId=" + this.state.sensorIdValue + "&date=" + formated, {
+        const response = await fetch("http://localhost:7999/" + "GetSensorsData?sensorId=" + this.state.sensorIdValue + "&date=" + formated, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -45,7 +45,7 @@ export class Home extends Component<HomeProps, HomeState> {
     }
 
     async getSensors() {
-        const response = await fetch("https://localhost:7269/" + "GetSensors", {
+        const response = await fetch("http://localhost:7999/" + "GetSensors", {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -116,7 +116,7 @@ export class Home extends Component<HomeProps, HomeState> {
                             </div>
 
                             <div className="col-sm">
-                                {moment(element.catchDate).format('DD/MM/YYYY')}
+                                {moment(element.dataDate).format('DD/MM/YYYY')}
                             </div>
                         </div>
                     ))}

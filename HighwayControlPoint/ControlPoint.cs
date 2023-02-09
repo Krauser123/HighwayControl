@@ -10,28 +10,25 @@ namespace HighwayControlPoint
         private readonly ConnectionMultiplexer Connection;
         private readonly List<HighwaySensor> SensorsInHighway;
         private readonly List<SensorCreateInfo> SensorsToInitialize;
-        private readonly ILogger<HighwaySensor> logger;
+        private readonly ILogger Logger;
 
-        public ControlPoint(List<SensorCreateInfo> sensorsInControlPoint, string redisConnectionString)
+        public ControlPoint(List<SensorCreateInfo> sensorsInControlPoint, string redisConnectionString, ILogger log)
         {
-            var logFactory = new LoggerFactory();
-            logger = logFactory.CreateLogger<HighwaySensor>();
-
+            Logger = log;
             SensorsToInitialize = sensorsInControlPoint;
             SensorsInHighway = new List<HighwaySensor>();
             Connection = GetConnection(redisConnectionString);
+            Database = Connection.GetDatabase();
         }
 
         public void Start()
         {
-            Database = Connection.GetDatabase();
-
             foreach (var sensorToInit in SensorsToInitialize)
             {
-                var sensor = new HighwaySensor(sensorToInit.Id, sensorToInit.Name, sensorToInit.Km, Database, logger);
+                var sensor = new HighwaySensor(sensorToInit.Id, sensorToInit.Name, sensorToInit.Km, Database, Logger);
                 SensorsInHighway.Add(sensor);
 
-                logger.LogInformation($"Starting sensor -> Id: {sensor.Id} - Name: {sensor.Name}");
+                Logger.LogInformation($"Starting sensor -> Id: {sensor.Id} - Name: {sensor.Name}");
                 sensor.StartSensor();
             }
         }

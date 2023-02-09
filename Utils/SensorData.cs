@@ -13,7 +13,7 @@ namespace Utils
         public string CarPlate { get; set; }
 
         [DataMember]
-        public DateTime CatchDate { get; set; }
+        public DateTime DataDate { get; set; }
 
         public SensorData()
         {
@@ -24,7 +24,7 @@ namespace Utils
         {
             this.CarSpeed = carSpeed;
             this.CarPlate = carPlate;
-            this.CatchDate = catchDate;
+            this.DataDate = catchDate;
         }
     }
 }

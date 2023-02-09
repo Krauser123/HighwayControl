@@ -26,7 +26,10 @@ namespace HighwayCentralControl_API.Controllers
 
             try
             {
-                var keys = redisUtils.GetKeysStartWith(sensorId.ToString() + ":" + date);
+                var keyPrefix = sensorId.ToString() + ":" + DateTime.Now.ToShortDateString();
+                var keys = redisUtils.GetKeysStartWith(keyPrefix);
+
+                _logger.LogInformation($"{keys.Count()} keys found with prefix: {keyPrefix}");
 
                 foreach (var key in keys)
                 {

@@ -27,7 +27,7 @@ namespace HighwayControlPoint
             InsertSensorInRedis();
         }
 
-        public void StartSensor()
+        public async void StartSensor()
         {
             Thread t = new Thread(new ThreadStart(ThreadProc));
             t.Start();
@@ -44,12 +44,12 @@ namespace HighwayControlPoint
                 string dataToSave = JsonConvert.SerializeObject(sensorData);
 
                 //Build key for redis
-                string key = $"{Id}:{sensorData.CatchDate.ToShortDateString()}:{sensorData.CatchDate.GetHashCode()}";
+                string key = $"{Id}:{sensorData.DataDate.ToString("dd/MM/yyyy")}:{sensorData.DataDate.GetHashCode()}";
 
-                DbCache.StringSetAsync(key, dataToSave);
-                Logger.LogTrace($"Data sended to redis: SensorInfo (Id: {Id} Name: {Name} Km: {Km}) SensorData (Plate: {sensorData.CarPlate} SpeedcarSpeed: {sensorData.CarSpeed}) ");
+                await DbCache.StringSetAsync(key, dataToSave);
+                Logger.LogInformation($"Data sended to redis: SensorInfo (Id: {Id} Name: {Name} Km: {Km}) SensorData (Plate: {sensorData.CarPlate} SpeedcarSpeed: {sensorData.CarSpeed}) ");
 
-                Thread.Sleep(0);
+                Thread.Sleep(1000);
             }
 
             //Main thread: Call Join(), to wait until ThreadProc ends

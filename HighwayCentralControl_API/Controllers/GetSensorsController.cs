@@ -34,6 +34,8 @@ namespace HighwayCentralControl_API.Controllers
                     var value = await _redisUtils.GetStringAsync(key);
                     sensors.Add(new SensorCreateInfo { Id = sensorId, Name = value });
                 }
+
+                sensors = sensors.OrderBy(o => o.Id).ToList();
             }
             catch (Exception ex)
             {
