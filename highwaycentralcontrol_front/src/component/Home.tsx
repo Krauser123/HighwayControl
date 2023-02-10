@@ -2,7 +2,6 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
-import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { SensorCreateInfo } from '../classes/SensorCreateInfo';
 import { SensorData } from '../classes/SensorData';
@@ -12,7 +11,6 @@ interface HomeProps {
 }
 
 interface HomeState {
-    dateValue: Date;
     sensorIdValue: number;
     sensorData: SensorData[];
     sensors: SensorCreateInfo[];
@@ -24,16 +22,14 @@ export class Home extends Component<HomeProps, HomeState> {
 
     constructor(props: HomeProps) {
         super(props);
-        this.state = { dateValue: new Date(), sensorIdValue: 1, sensorData: [], sensors: [], sensorSelected: null };
-        this.onChange = this.onChange.bind(this);
+        this.state = { sensorIdValue: 1, sensorData: [], sensors: [], sensorSelected: null };
         this.changeDdr = this.changeDdr.bind(this);
 
         this.getSensors();
     }
 
-    async getSensorData() {
-        let formated = moment(this.state.dateValue).format('DD/MM/YYYY');
-        const response = await fetch("http://localhost:7999/" + "GetSensorsData?sensorId=" + this.state.sensorIdValue + "&date=" + formated, {
+    async getSensorData(sensorSelectedId: number) {
+        const response = await fetch("http://localhost:7999/" + "GetSensorsData?sensorId=" + sensorSelectedId, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -56,15 +52,10 @@ export class Home extends Component<HomeProps, HomeState> {
         this.setState({ sensors: data });
     }
 
-    onChange(nextValue: any) {
-        this.setState({ dateValue: nextValue })
-        this.getSensorData();
-    }
-
     changeDdr(eventKey: any, event: Object) {
         const selected = this.state.sensors.find(o => o.id == eventKey);
         if (selected != undefined) {
-            this.setState({ sensorSelected: selected });
+            this.getSensorData(selected.id);
         }
     }
 
@@ -86,14 +77,10 @@ export class Home extends Component<HomeProps, HomeState> {
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>
-                        <div className="col-sm">
-                            <Calendar onChange={this.onChange} value={this.state.dateValue} />
-                        </div>
                     </div>
                 </div>
 
                 <div className="container data">
-
                     <div className="row">
                         <div className="col-sm">
                             {"Car Plate"}
@@ -106,15 +93,14 @@ export class Home extends Component<HomeProps, HomeState> {
                         </div>
                     </div>
 
-                    {this.state.sensorData.map(element => (
-                        <div className="row">
+                    {this.state.sensorData.map((element, index) => (
+                        <div className="row" key={index}>
                             <div className="col-sm">
                                 {element.carPlate}
                             </div>
                             <div className="col-sm">
                                 {element.carSpeed}
                             </div>
-
                             <div className="col-sm">
                                 {moment(element.dataDate).format('DD/MM/YYYY')}
                             </div>

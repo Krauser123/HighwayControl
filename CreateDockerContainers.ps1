@@ -42,16 +42,16 @@ Write-Host "`nGet and run REDIS for docker"
 docker pull redis
 docker run -d -p 6379:6379 --network $networkName --name $redisContainerName redis
 
-Write-Host "`nBuild docker file to create a image from control point"
+Write-Host "`nBuild docker file to create a image from Control API"
 docker build -t highway-central-control-api -f $apiDockerFileLocation .
+
+Write-Host "`nCreate container for Control API"
+docker run -d -p 7999:80 -p 8000:443 --network $networkName --name $apiContainerName highway-central-control-api
 
 Write-Host "`nBuild docker file to create a image from control point"
 docker build -t highway-control-point-ard -f $pointDockerFileLocation"-ARD" .
 docker build -t highway-control-point-ome -f $pointDockerFileLocation"-OME" .
 docker build -t highway-control-point-uin -f $pointDockerFileLocation"-UIN" .
-
-Write-Host "`nCreate container for Control API"
-docker run -d -p 7999:80 -p 8000:443 --network $networkName --name $apiContainerName highway-central-control-api
 
 Write-Host "`nCreate multiple containers for Control Points"
 docker run -d -p 8001:8001 --network $networkName --name $pointARDContainerName highway-control-point-ard

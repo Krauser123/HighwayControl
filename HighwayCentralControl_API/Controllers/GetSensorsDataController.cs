@@ -20,13 +20,13 @@ namespace HighwayCentralControl_API.Controllers
         }
 
         [HttpGet]
-        public async Task<List<SensorData>> Get([FromQuery] int sensorId, [FromQuery] string date)
+        public async Task<List<SensorData>> Get([FromQuery] int sensorId)
         {
             List<SensorData> sensorDatas = new List<SensorData>();
 
             try
             {
-                var keyPrefix = sensorId.ToString() + ":" + DateTime.Now.ToShortDateString();
+                var keyPrefix = sensorId.ToString() + ":" + DateTime.Now.ToString("dd/MM/yyyy");
                 var keys = redisUtils.GetKeysStartWith(keyPrefix);
 
                 _logger.LogInformation($"{keys.Count()} keys found with prefix: {keyPrefix}");
